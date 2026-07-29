@@ -45,6 +45,7 @@ MISI:
       phone: "+62 812-3456-7890",
       email: "nusabadminton@gmail.com",
       socialMedia: JSON.stringify({
+        whatsapp: "0812-3456-7890",
         instagram: "@nusabadminton",
         facebook: "PB Nusa Badminton Club",
         youtube: "Nusa Badminton TV",
