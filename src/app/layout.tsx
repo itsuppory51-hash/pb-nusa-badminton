@@ -21,21 +21,25 @@ export const metadata: Metadata = {
 };
 
 async function getThemeStyle() {
-  const settings = await prisma.setting.findMany();
-  const themeMap: Record<string, string> = {};
-  for (const s of settings) {
-    themeMap[s.key] = s.value;
+  try {
+    const settings = await prisma.setting.findMany();
+    const themeMap: Record<string, string> = {};
+    for (const s of settings) {
+      themeMap[s.key] = s.value;
+    }
+    const colorKeys = [
+      "color-navy", "color-navy-light", "color-navy-dark",
+      "color-gold", "color-gold-light", "color-gold-dark",
+      "color-surface", "color-muted",
+    ];
+    const vars: Record<string, string> = {};
+    for (const k of colorKeys) {
+      if (themeMap[k]) vars[`--${k}`] = themeMap[k];
+    }
+    return vars;
+  } catch {
+    return {};
   }
-  const colorKeys = [
-    "color-navy", "color-navy-light", "color-navy-dark",
-    "color-gold", "color-gold-light", "color-gold-dark",
-    "color-surface", "color-muted",
-  ];
-  const vars: Record<string, string> = {};
-  for (const k of colorKeys) {
-    if (themeMap[k]) vars[`--${k}`] = themeMap[k];
-  }
-  return vars;
 }
 
 export default async function RootLayout({
