@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model ClubProfile {
+  id          Int      @id @default(autoincrement())
+  name        String
+  tagline     String   @default("")
+  description String   @default("")
+  logoUrl     String   @default("")
+  bannerUrl   String   @default("")
+  address     String   @default("")
+  phone       String   @default("")
+  email       String   @default("")
+  socialMedia String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Content {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  content   String   @default("")
+  imageUrl  String   @default("")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tournament {
+  id               Int      @id @default(autoincrement())
+  title            String
+  description      String   @default("")
+  date             DateTime
+  time             String   @default("")
+  location         String   @default("")
+  registrationLink String   @default("")
+  posterUrl        String   @default("")
+  status           String   @default("UPCOMING")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Schedule {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @default("")
+  dayOfWeek   String
+  time        String
+  location    String   @default("")
+  maxPlayers  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gallery {
+  id          Int      @id @default(autoincrement())
+  title       String   @default("")
+  imageUrl    String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model Documentation {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        DateTime
+  linkUrl     String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  title     String   @default("")
+  subtitle  String   @default("")
+  linkUrl   String   @default("")
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String @default("")
+}
