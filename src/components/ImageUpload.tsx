@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface ImageUploadProps {
   currentUrl?: string;
@@ -13,6 +13,13 @@ export default function ImageUpload({ currentUrl, onUpload, label }: ImageUpload
   const [uploading, setUploading] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlValue, setUrlValue] = useState(currentUrl || "");
+
+  useEffect(() => {
+    if (currentUrl) {
+      setPreview(currentUrl);
+      setUrlValue(currentUrl);
+    }
+  }, [currentUrl]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
