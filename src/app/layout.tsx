@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "PB. Nusa Badminton Club",
   description: "Club badminton profesional — jadwal turnamen, mabar, dan informasi terlengkap.",
