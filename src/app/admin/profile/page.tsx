@@ -42,10 +42,22 @@ export default function AdminProfile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+      const result = await res.json();
       if (res.ok) {
         setMsg("Berhasil disimpan!");
+        setForm({
+          name: result.name || "",
+          tagline: result.tagline || "",
+          description: result.description || "",
+          logoUrl: result.logoUrl || "",
+          bannerUrl: result.bannerUrl || "",
+          address: result.address || "",
+          phone: result.phone || "",
+          email: result.email || "",
+          socialMedia: result.socialMedia || "{}",
+        });
       } else {
-        setMsg("Gagal menyimpan");
+        setMsg("Gagal menyimpan: " + (result.error || "Unknown error"));
       }
     } catch {
       setMsg("Terjadi kesalahan");
