@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ImageUpload from "@/components/ImageUpload";
+import SubmitButton from "@/components/SubmitButton";
 
 interface Banner {
   id: number;
@@ -18,6 +19,7 @@ export default function AdminBanners() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({ imageUrl: "", title: "", subtitle: "", linkUrl: "", order: 0, isActive: true });
+  const [saving, setSaving] = useState(false);
 
   function load() {
     fetch("/api/banners")
@@ -41,11 +43,16 @@ export default function AdminBanners() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const url = editId ? `/api/banners/${editId}` : "/api/banners";
-    const method = editId ? "PUT" : "POST";
-    await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-    setShowForm(false);
-    load();
+    setSaving(true);
+    try {
+      const url = editId ? `/api/banners/${editId}` : "/api/banners";
+      const method = editId ? "PUT" : "POST";
+      await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      setShowForm(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete(id: number) {
@@ -105,7 +112,7 @@ export default function AdminBanners() {
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="px-4 py-2 bg-gold text-navy-dark font-semibold rounded-lg hover:bg-gold-light transition-colors text-sm">Simpan</button>
+                <SubmitButton loading={saving} />
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors">Batal</button>
               </div>
             </form>

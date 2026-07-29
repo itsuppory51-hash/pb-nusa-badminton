@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ImageUpload from "@/components/ImageUpload";
+import SubmitButton from "@/components/SubmitButton";
 
 export default function AdminProfile() {
   const [form, setForm] = useState({
@@ -89,10 +90,7 @@ export default function AdminProfile() {
           <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
         </div>
         <div className="pt-2">
-          <button type="submit" disabled={saving}
-            className="px-6 py-2.5 bg-gold text-navy-dark font-semibold rounded-lg hover:bg-gold-light transition-colors disabled:opacity-50">
-            {saving ? "Menyimpan..." : "Simpan"}
-          </button>
+          <SubmitButton loading={saving} />
         </div>
       </form>
     </div>

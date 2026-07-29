@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SubmitButton from "@/components/SubmitButton";
 
 export default function AdminDocumentation() {
   const [items, setItems] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({ title: "", date: "", linkUrl: "", description: "" });
+  const [saving, setSaving] = useState(false);
 
   function load() {
     fetch("/api/documentation")
@@ -31,11 +33,16 @@ export default function AdminDocumentation() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const url = editId ? `/api/documentation/${editId}` : "/api/documentation";
-    const method = editId ? "PUT" : "POST";
-    await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-    setShowForm(false);
-    load();
+    setSaving(true);
+    try {
+      const url = editId ? `/api/documentation/${editId}` : "/api/documentation";
+      const method = editId ? "PUT" : "POST";
+      await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      setShowForm(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete(id: number) {
@@ -65,7 +72,7 @@ export default function AdminDocumentation() {
               <textarea placeholder="Deskripsi (opsional)" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-gold outline-none text-sm resize-none" />
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="px-4 py-2 bg-gold text-navy-dark font-semibold rounded-lg hover:bg-gold-light transition-colors text-sm">Simpan</button>
+                <SubmitButton loading={saving} />
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors">Batal</button>
               </div>
             </form>

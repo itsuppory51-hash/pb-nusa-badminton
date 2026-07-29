@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SubmitButton from "@/components/SubmitButton";
 
 const defaults = {
   "color-navy": "#1E3A5F",
@@ -124,13 +125,7 @@ export default function AdminTheme() {
         ))}
 
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2.5 bg-gold text-navy-dark font-semibold rounded-lg hover:bg-gold-light transition-colors disabled:opacity-50"
-          >
-            {saving ? "Menyimpan..." : "Simpan Tema"}
-          </button>
+          <SubmitButton loading={saving} label="Simpan Tema" />
         </div>
       </form>
 

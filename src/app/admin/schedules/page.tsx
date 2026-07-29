@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SubmitButton from "@/components/SubmitButton";
 
 const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
@@ -9,6 +10,7 @@ export default function AdminSchedules() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({ title: "", description: "", dayOfWeek: "Senin", time: "", location: "", maxPlayers: 0, isActive: true });
+  const [saving, setSaving] = useState(false);
 
   function load() {
     fetch("/api/schedules").then((r) => r.json()).then(setItems);
@@ -30,11 +32,16 @@ export default function AdminSchedules() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const url = editId ? `/api/schedules/${editId}` : "/api/schedules";
-    const method = editId ? "PUT" : "POST";
-    await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, maxPlayers: Number(form.maxPlayers) }) });
-    setShowForm(false);
-    load();
+    setSaving(true);
+    try {
+      const url = editId ? `/api/schedules/${editId}` : "/api/schedules";
+      const method = editId ? "PUT" : "POST";
+      await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, maxPlayers: Number(form.maxPlayers) }) });
+      setShowForm(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete(id: number) {
@@ -76,7 +83,7 @@ export default function AdminSchedules() {
                 Aktif
               </label>
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="px-4 py-2 bg-gold text-navy-dark font-semibold rounded-lg hover:bg-gold-light transition-colors text-sm">Simpan</button>
+                <SubmitButton loading={saving} />
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors">Batal</button>
               </div>
             </form>
