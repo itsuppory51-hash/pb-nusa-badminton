@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 export const dynamic = "force-dynamic";
 
@@ -8,28 +6,54 @@ export async function GET() {
   const url = process.env.TURSO_DATABASE_URL;
   const token = process.env.TURSO_AUTH_TOKEN;
 
-  // Test 1: Adapter with options object (not client)
+  const results: any = {};
+
+  // Test 1: adapter with just url string (local sqlite mode)
   try {
-    const adapter1 = new PrismaLibSql({ url, authToken: token });
-    const client1 = new PrismaClient({ adapter: adapter1 });
-    const r1 = await client1.clubProfile.findFirst();
-    return NextResponse.json({ method: "options_object", success: true, data: r1 });
-  } catch (e1: any) {
-    // Test 2: Adapter with libsql client
-    try {
-      const { createClient } = require("@libsql/client");
-      const libsql = createClient({ url, authToken: token });
-      const adapter2 = new PrismaLibSql(libsql);
-      const client2 = new PrismaClient({ adapter: adapter2 });
-      const r2 = await client2.clubProfile.findFirst();
-      return NextResponse.json({ method: "libsql_client", success: true, data: r2 });
-    } catch (e2: any) {
-      return NextResponse.json({
-        error1: e1.message,
-        error2: e2.message,
-        url_prefix: url?.substring(0, 30),
-        has_token: !!token,
-      });
-    }
+    const { PrismaLibSql } = await import("@prisma/adapter-libsql");
+    const { PrismaClient } = await import("@prisma/client");
+    const adapter = new PrismaLibSql({ url: "file:./dev.db" });
+    const client = new PrismaClient({ adapter });
+    await client.$connect();
+    results.local_sqlite = "connected";
+    await client.$disconnect();
+  } catch (e: any) {
+    results.local_sqlite = "error: " + e.message?.substring(0, 80);
   }
+
+  // Test 2: adapter with libsql:// url as options
+  try {
+    const { PrismaLibSql } = await import("@prisma/adapter-libsql");
+    const { PrismaClient } = await import("@prisma/client");
+    const adapter = new PrismaLibSql({ url, authToken: token });
+    const client = new PrismaClient({ adapter });
+    await client.$connect();
+    results.turso_options = "connected";
+    const r = await client.clubProfile.findFirst();
+    results.turso_data = r;
+    await client.$disconnect();
+  } catch (e: any) {
+    results.turso_options = "error: " + e.message?.substring(0, 120);
+  }
+
+  // Test 3: adapter with libsql client
+  try {
+    const { PrismaLibSql } = await import("@prisma/adapter-libsql");
+    const { PrismaClient } = await import("@prisma/client");
+    const { createClient } = await import("@libsql/client");
+    const libsql = createClient({ url, authToken: token });
+    const adapter = new PrismaLibSql(libsql);
+    const client = new PrismaClient({ adapter });
+    await client.$connect();
+    results.turso_client = "connected";
+    const r = await client.clubProfile.findFirst();
+    results.turso_client_data = r;
+    await client.$disconnect();
+  } catch (e: any) {
+    results.turso_client = "error: " + e.message?.substring(0, 120);
+  }
+
+  results.env = { url: url?.substring(0, 30), has_token: !!token };
+
+  return NextResponse.json(results);
 }
