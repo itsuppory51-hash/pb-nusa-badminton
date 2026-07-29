@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-const adapter = new PrismaLibSql({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
-
+const url = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
+if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
+const pool = new Pool({ connectionString: url });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

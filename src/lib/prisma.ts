@@ -1,12 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-function getPrismaClient(): PrismaClient {
-  if (globalForPrisma.prisma) return globalForPrisma.prisma;
-
-  const url = process.env.TURSO_DATABASE_URL; // Only use Turso URL, not DATABASE_URL
-  const authToken = process.env.TURSO_AUTH_TOKEN;
+function createPrismaClient(): PrismaClient {
+  const url = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
 
   if (!url) {
     return new Proxy({} as any, {
@@ -14,32 +12,12 @@ function getPrismaClient(): PrismaClient {
     }) as PrismaClient;
   }
 
-  if (url.startsWith("libsql://") || url.startsWith("http")) {
-    const { PrismaLibSql } = require("@prisma/adapter-libsql");
-    const { createClient } = require("@libsql/client");
-    const libsql = createClient({ url, authToken });
-    const adapter = new PrismaLibSql(libsql);
-    globalForPrisma.prisma = new PrismaClient({ adapter });
-  } else {
-    const { PrismaLibSql } = require("@prisma/adapter-libsql");
-    const adapter = new PrismaLibSql({ url });
-    globalForPrisma.prisma = new PrismaClient({ adapter });
-  }
-
-  return globalForPrisma.prisma!;
+  const { Pool } = require("pg");
+  const pool = new Pool({ connectionString: url });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
 }
 
-export function getPrisma() {
-  return getPrismaClient();
-}
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-export const prisma = new Proxy({} as any, {
-  get(_target, prop) {
-    const client = getPrismaClient();
-    return (client as any)[prop];
-  },
-}) as PrismaClient;
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = getPrismaClient();
-}
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
