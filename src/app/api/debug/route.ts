@@ -1,32 +1,35 @@
 import { NextResponse } from "next/server";
-import { getPrisma } from "@/lib/prisma";
 import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const envCheck = {
-    TURSO_URL: (process.env.TURSO_DATABASE_URL || "").substring(0, 30),
-    TURSO_TOKEN: process.env.TURSO_AUTH_TOKEN ? "SET" : "NOT SET",
-  };
+  const url = process.env.TURSO_DATABASE_URL;
+  const token = process.env.TURSO_AUTH_TOKEN;
 
+  // Test 1: Adapter with options object (not client)
   try {
-    const { PrismaLibSql } = require("@prisma/adapter-libsql");
-    const { createClient } = require("@libsql/client");
-    const libsql = createClient({
-      url: process.env.TURSO_DATABASE_URL,
-      authToken: process.env.TURSO_AUTH_TOKEN,
-    });
-    const adapter = new PrismaLibSql(libsql);
-    const client = new PrismaClient({ adapter });
-    const result = await client.clubProfile.findFirst();
-    return NextResponse.json({ status: "direct_connection_ok", result, env: envCheck });
-  } catch (e: any) {
-    return NextResponse.json({
-      status: "error",
-      message: e.message,
-      code: e.code,
-      env: envCheck,
-    });
+    const adapter1 = new PrismaLibSql({ url, authToken: token });
+    const client1 = new PrismaClient({ adapter: adapter1 });
+    const r1 = await client1.clubProfile.findFirst();
+    return NextResponse.json({ method: "options_object", success: true, data: r1 });
+  } catch (e1: any) {
+    // Test 2: Adapter with libsql client
+    try {
+      const { createClient } = require("@libsql/client");
+      const libsql = createClient({ url, authToken: token });
+      const adapter2 = new PrismaLibSql(libsql);
+      const client2 = new PrismaClient({ adapter: adapter2 });
+      const r2 = await client2.clubProfile.findFirst();
+      return NextResponse.json({ method: "libsql_client", success: true, data: r2 });
+    } catch (e2: any) {
+      return NextResponse.json({
+        error1: e1.message,
+        error2: e2.message,
+        url_prefix: url?.substring(0, 30),
+        has_token: !!token,
+      });
+    }
   }
 }
