@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navLinks = [
   { href: "/", label: "Beranda" },
@@ -15,6 +15,16 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [club, setClub] = useState<{ name?: string; logoUrl?: string }>({});
+
+  useEffect(() => {
+    fetch("/api/club-profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.id) setClub(data);
+      })
+      .catch(() => {});
+  }, []);
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -23,11 +33,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-              <span className="text-navy-dark font-bold text-sm">N</span>
-            </div>
+            {club.logoUrl ? (
+              <img src={club.logoUrl} alt="Logo" className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center flex-shrink-0">
+                <span className="text-navy-dark font-bold text-sm">N</span>
+              </div>
+            )}
             <span className="text-white font-semibold text-lg tracking-tight">
-              Nusa <span className="text-gold">Badminton</span>
+              {(club.name || "Nusa").split(" ")[0]} <span className="text-gold">{(club.name || "Badminton").split(" ").slice(1).join(" ") || "Badminton"}</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-1">
