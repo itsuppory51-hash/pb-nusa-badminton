@@ -5,7 +5,7 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefi
 function getPrismaClient(): PrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+  const url = process.env.TURSO_DATABASE_URL; // Only use Turso URL, not DATABASE_URL
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
   if (!url) {
