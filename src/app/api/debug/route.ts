@@ -1,14 +1,32 @@
 import { NextResponse } from "next/server";
+import { getPrisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const tursoUrl = process.env.TURSO_DATABASE_URL || "";
-  return NextResponse.json({
-    TURSO_DATABASE_URL: tursoUrl ? tursoUrl.substring(0, 20) + "..." : "NOT SET",
-    DATABASE_URL: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "NOT SET",
-    TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN ? "SET (" + process.env.TURSO_AUTH_TOKEN.substring(0, 10) + "...)" : "NOT SET",
-    JWT_SECRET: process.env.JWT_SECRET ? "SET" : "NOT SET",
-    FULL_TURSO_URL: tursoUrl,
-  });
+  const envCheck = {
+    TURSO_URL: (process.env.TURSO_DATABASE_URL || "").substring(0, 30),
+    TURSO_TOKEN: process.env.TURSO_AUTH_TOKEN ? "SET" : "NOT SET",
+  };
+
+  try {
+    const { PrismaLibSql } = require("@prisma/adapter-libsql");
+    const { createClient } = require("@libsql/client");
+    const libsql = createClient({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+    const adapter = new PrismaLibSql(libsql);
+    const client = new PrismaClient({ adapter });
+    const result = await client.clubProfile.findFirst();
+    return NextResponse.json({ status: "direct_connection_ok", result, env: envCheck });
+  } catch (e: any) {
+    return NextResponse.json({
+      status: "error",
+      message: e.message,
+      code: e.code,
+      env: envCheck,
+    });
+  }
 }
