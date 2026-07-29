@@ -17,10 +17,19 @@ const geistMono = Geist_Mono({
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "PB. Nusa Badminton Club",
-  description: "Club badminton profesional — jadwal turnamen, mabar, dan informasi terlengkap.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let logoUrl: string | undefined;
+  try {
+    const profile = await prisma.clubProfile.findFirst();
+    logoUrl = profile?.logoUrl;
+  } catch {}
+
+  return {
+    title: "PB. Nusa Badminton Club",
+    description: "Club badminton profesional — jadwal turnamen, mabar, dan informasi terlengkap.",
+    icons: logoUrl ? { icon: logoUrl } : undefined,
+  };
+}
 
 async function getThemeStyle() {
   try {
