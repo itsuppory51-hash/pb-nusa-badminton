@@ -40,7 +40,12 @@ export async function POST(request: Request) {
         });
         return NextResponse.json({ url: (result as any).secure_url });
       } catch (e: any) {
-        return NextResponse.json({ error: "Gagal upload ke Cloudinary: " + e.message }, { status: 500 });
+        return NextResponse.json({
+          error: "Gagal upload: " + e.message,
+          cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: !!process.env.CLOUDINARY_API_KEY,
+          api_secret: !!process.env.CLOUDINARY_API_SECRET,
+        }, { status: 500 });
       }
     }
 
