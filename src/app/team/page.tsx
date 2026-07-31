@@ -38,16 +38,18 @@ export default async function TeamPage() {
                 const links = Object.entries(socials).filter(([, v]) => v);
                 return (
                   <div key={m.id} className="group bg-surface rounded-xl overflow-hidden border border-gray-100 hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300">
-                    <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                      {m.photoUrl ? (
-                        <img src={m.photoUrl} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gold/20 to-gold-dark/20">
-                          <span className="text-4xl font-bold text-gold-dark">{m.name.charAt(0)}</span>
-                        </div>
-                      )}
+                    <div className="pt-6 pb-3 flex justify-center">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100">
+                        {m.photoUrl ? (
+                          <img src={m.photoUrl} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gold/20 to-gold-dark/20">
+                            <span className="text-2xl font-bold text-gold-dark">{m.name.charAt(0)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-3 text-center">
+                    <div className="px-3 pb-4 text-center">
                       <h3 className="font-semibold text-navy-dark text-sm mb-0.5 truncate">{m.name}</h3>
                       <p className="text-xs text-muted mb-2.5 truncate">{m.position || "Anggota"}</p>
                       {links.length > 0 && (
