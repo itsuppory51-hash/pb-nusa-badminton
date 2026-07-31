@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import TeamSlideshow from "@/components/TeamSlideshow";
 
 async function getData() {
   const profile = await prisma.clubProfile.findFirst();
@@ -26,11 +27,15 @@ async function getData() {
     where: { published: true },
     orderBy: { createdAt: "desc" },
   });
-  return { profile, banners, tournaments, schedules, gallery, contents };
+  const team = await prisma.teamMember.findMany({
+    where: { isActive: true },
+    orderBy: [{ order: "asc" }, { name: "asc" }],
+  });
+  return { profile, banners, tournaments, schedules, gallery, contents, team };
 }
 
 export default async function Home() {
-  const { profile, banners, tournaments, schedules, gallery, contents } = await getData();
+  const { profile, banners, tournaments, schedules, gallery, contents, team } = await getData();
 
   return (
     <div>
@@ -141,6 +146,28 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Our Team Section */}
+      {team.length > 0 && (
+        <section className="py-20 bg-surface">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-navy-dark mb-4">
+                Our <span className="text-gold">Team</span>
+              </h2>
+              <p className="text-muted max-w-2xl mx-auto">
+                Orang-orang hebat di balik PB. Nusa Badminton Club
+              </p>
+            </div>
+            <TeamSlideshow members={team} />
+            <div className="text-center mt-10">
+              <Link href="/team" className="inline-block px-6 py-2.5 border border-gold/40 text-gold-dark font-semibold rounded-xl hover:bg-gold/10 transition-all duration-200">
+                Lihat Semua Tim
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Gallery Preview */}
       {gallery.length > 0 && (

@@ -30,6 +30,7 @@ export default async function Footer() {
               <li><a href="/" className="hover:text-gold transition-colors">Beranda</a></li>
               <li><a href="/about" className="hover:text-gold transition-colors">Tentang</a></li>
               <li><a href="/schedule" className="hover:text-gold transition-colors">Jadwal</a></li>
+              <li><a href="/team" className="hover:text-gold transition-colors">Our Team</a></li>
               <li><a href="/gallery" className="hover:text-gold transition-colors">Galeri</a></li>
               <li><a href="/contact" className="hover:text-gold transition-colors">Kontak</a></li>
             </ul>

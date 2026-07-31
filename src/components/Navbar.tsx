@@ -8,6 +8,7 @@ const navLinks = [
   { href: "/", label: "Beranda" },
   { href: "/about", label: "Tentang" },
   { href: "/schedule", label: "Jadwal" },
+  { href: "/team", label: "Our Team" },
   { href: "/gallery", label: "Galeri" },
   { href: "/contact", label: "Kontak" },
 ];
